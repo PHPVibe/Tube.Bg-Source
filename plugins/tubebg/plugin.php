@@ -3,10 +3,10 @@
  * Plugin Name: tubebg.com source
  * Plugin URI: http://phpvibe.com/
  * Description: Adds Tubebg embed source to PHPVibe
- * Version: 2.0
+ * Version: 1.0
  * Author: PHPVibe Crew
  * Author URI: http://www.phpvibe.com
- * License: Commercial
+ * License: GPL
  */
 
 function _Tubebg($hosts = array())
@@ -64,41 +64,41 @@ function DetailsTubebg($zvideo = '')
 
         $html = TubebggetDataFromUrl($VibeLink);
 
+        if (not_empty($html)) {
+            $dom = new DOMDocument();
+            libxml_use_internal_errors(1);
+            $dom->loadHTML($html);
+            $xpath = new DOMXpath($dom);
+            $jsonScripts = $xpath->query('//script[@type="application/ld+json"]');
 
-        $dom = new DOMDocument();
-        libxml_use_internal_errors(1);
-        $dom->loadHTML($html);
-        $xpath = new DOMXpath($dom);
-        $jsonScripts = $xpath->query('//script[@type="application/ld+json"]');
+            if ($jsonScripts->length < 1) {
+                return $xvideo;
+            } else {
+                foreach ($jsonScripts as $node) {
+                    //echo '<pre>';
+                    $json = json_decode($node->nodeValue, true);
+                    //$xvideo = $json;
+                    if (isset($json['name']) && not_empty($json['name'])) {
+                        $xvideo['title'] = $json['name'];
+                    }
+                    if (isset($json['description']) && not_empty($json['description'])) {
+                        $xvideo['description'] = $json['description'];
+                    }
+                    if (isset($json['thumbnailUrl']) && not_empty($json['thumbnailUrl'])) {
+                        $xvideo['thumbnail'] = $json['thumbnailUrl'];
+                    }
+                    if (isset($json['duration']) && not_empty($json['duration'])) {
+                        $xvideo['duration'] = toSeconds(str_replace(array('PT', 'M', 'S'), array('', ':', ''), $json['duration']));
+                    }
 
-        if ($jsonScripts->length < 1) {
-            return $xvideo;
-        } else {
-            foreach ($jsonScripts as $node) {
-                //echo '<pre>';
-                $json = json_decode($node->nodeValue, true);
-                //$xvideo = $json;
-                if (isset($json['name']) && not_empty($json['name'])) {
-                    $xvideo['title'] = $json['name'];
+                    //print_r( $xvideo);
+
+                    //echo '</pre>';
+
+                    // your stuff with JSON ...
                 }
-                if (isset($json['description']) && not_empty($json['description'])) {
-                    $xvideo['description'] = $json['description'];
-                }
-                if (isset($json['thumbnailUrl']) && not_empty($json['thumbnailUrl'])) {
-                    $xvideo['thumbnail'] = $json['thumbnailUrl'];
-                }
-                if (isset($json['duration']) && not_empty($json['duration'])) {
-                    $xvideo['duration'] = toSeconds(str_replace(array('PT', 'M', 'S'), array('', ':', ''), $json['duration']));
-                }
-
-                //print_r( $xvideo);
-
-                //echo '</pre>';
-
-                // your stuff with JSON ...
             }
         }
-
 
     }
     /* End function */
