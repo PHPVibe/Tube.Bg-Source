@@ -1,4 +1,4 @@
-# Tube.Bg-Source
+# Tube.Bg Video Source for PHPVibe
 A source to embed Tube.Bg video in PHPVibe
 
 Upload plugin.php to /plugins/tubebg/
