@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: tubebg.com source
+ * Plugin Name: TubeBG.com Video Source
  * Plugin URI: http://phpvibe.com/
  * Description: Adds Tubebg embed source to PHPVibe
  * Version: 1.0
