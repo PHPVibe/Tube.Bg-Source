@@ -79,7 +79,7 @@ function DetailsTubebg($zvideo = '')
                     $json = json_decode($node->nodeValue, true);
                     //$xvideo = $json;
                     if (isset($json['name']) && not_empty($json['name'])) {
-                        $xvideo['title'] = $json['name'];
+                      $xvideo['title'] = str_replace('- TubeBG','',$json['name']);
                     }
                     if (isset($json['description']) && not_empty($json['description'])) {
                         $xvideo['description'] = $json['description'];
