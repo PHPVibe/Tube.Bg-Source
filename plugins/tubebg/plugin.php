@@ -1,12 +1,12 @@
 <?php
 /**
- * Plugin Name: TubeBG.com Video Source
+ * Plugin Name: tubebg.com source
  * Plugin URI: http://phpvibe.com/
  * Description: Adds Tubebg embed source to PHPVibe
- * Version: 1.0
+ * Version: 2.0
  * Author: PHPVibe Crew
  * Author URI: http://www.phpvibe.com
- * License: GPL
+ * License: Commercial
  */
 
 function _Tubebg($hosts = array())
@@ -33,7 +33,6 @@ function EmbedTubebg($txt = '')
     }
     return $txt;
 }
-
 function TubebggetDataFromUrl($url)
 {
     $ch = curl_init();
@@ -47,10 +46,9 @@ function TubebggetDataFromUrl($url)
     curl_close($ch);
     return $data;
 }
-
-function DetailsTubebg($zvideo = '')
+function DetailsTubebg($zvideo = array())
 {
-    global $video, $vid, $websLink, $VibeProvider, $VibeLink;
+    global $video, $vid, $websLink , $VibeProvider , $VibeLink;
 
 
     $xvideo = array();
@@ -60,50 +58,56 @@ function DetailsTubebg($zvideo = '')
     $xvideo['duration'] = '';
     $xvideo['tags'] = '';
 
-    if (_contains(strtolower($VibeProvider), 'tubebg')) {
+    if (_contains(strtolower($VibeProvider), 'tubebg') ) {
 
-        $html = TubebggetDataFromUrl($VibeLink);
+        $html =TubebggetDataFromUrl($VibeLink);
+       
 
-        if (not_empty($html)) {
-            $dom = new DOMDocument();
-            libxml_use_internal_errors(1);
-            $dom->loadHTML($html);
-            $xpath = new DOMXpath($dom);
-            $jsonScripts = $xpath->query('//script[@type="application/ld+json"]');
+        $dom  = new DOMDocument();
+        libxml_use_internal_errors( 1 );
+        $dom->loadHTML( $html );
+        $xpath = new DOMXpath( $dom );
+        $jsonScripts = $xpath->query( '//script[@type="application/ld+json"]' );
 
-            if ($jsonScripts->length < 1) {
-                return $xvideo;
-            } else {
-                foreach ($jsonScripts as $node) {
-                    //echo '<pre>';
-                    $json = json_decode($node->nodeValue, true);
-                    //$xvideo = $json;
-                    if (isset($json['name']) && not_empty($json['name'])) {
-                      $xvideo['title'] = str_replace('- TubeBG','',$json['name']);
-                    }
-                    if (isset($json['description']) && not_empty($json['description'])) {
-                        $xvideo['description'] = $json['description'];
-                    }
-                    if (isset($json['thumbnailUrl']) && not_empty($json['thumbnailUrl'])) {
-                        $xvideo['thumbnail'] = $json['thumbnailUrl'];
-                    }
-                    if (isset($json['duration']) && not_empty($json['duration'])) {
-                        $xvideo['duration'] = toSeconds(str_replace(array('PT', 'M', 'S'), array('', ':', ''), $json['duration']));
-                    }
+        if( $jsonScripts->length < 1 )
+        {
+            return $xvideo;
+        }
+        else
+        {
+             foreach( $jsonScripts as $node )
+            {
+				//echo '<pre>';
+                $json = json_decode( $node->nodeValue, true);
+                //$xvideo = $json;
+				if(isset($json['name']) && not_empty($json['name'])) {
+					$xvideo['title'] = $json['name'];
+				}
+				if(isset($json['description']) && not_empty($json['description'])) {
+					$xvideo['description'] = $json['description'];
+				}
+				if(isset($json['thumbnailUrl']) && not_empty($json['thumbnailUrl'])) {
+					$xvideo['thumbnail'] = $json['thumbnailUrl'];
+				}
+				if(isset($json['duration']) && not_empty($json['duration'])) {
+					$xvideo['duration'] = toSeconds(str_replace(array('PT', 'M', 'S'), array('', ':', ''), $json['duration']));
+				}
+				
+				//print_r( $xvideo);
 
-                    //print_r( $xvideo);
+ 				//echo '</pre>';
 
-                    //echo '</pre>';
-
-                    // your stuff with JSON ...
-                }
+                // your stuff with JSON ...
             }
         }
 
-    }
+return array_merge($zvideo, $xvideo);
+    } else {
+		return $zvideo;
+	}
     /* End function */
-    $thevideo = array_merge($zvideo, $xvideo);
-    return $thevideo;
+    
+   
 }
 
 add_filter('EmbedDetails', 'DetailsTubebg');
